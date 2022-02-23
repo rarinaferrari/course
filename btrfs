@@ -1,0 +1,5 @@
+sudo btrfs subvolume snapshot -r / /snaps/snap-20-02-2022
+sudo btrfs subvolume show /
+sudo btrfs subvolume set-default ID /
+sudo btrfs subvolume get-default ID /
+
