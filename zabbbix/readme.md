@@ -44,3 +44,9 @@ sudo a2enconf zabbix-frontend-php
 sudo systemctl restart apache2
 sudo systemctl restart zabbix-server
 
+
+sudo dpkg-reconfigure locales
+
+ru_RU.UTF-8
+ru_RU.ISO-8859-5
+
