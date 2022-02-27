@@ -40,7 +40,7 @@ DBUser=zabbix
 DBPassword=this my password
 
 
-sudo a2enconf zabbix-frontend-php
+sudo a2enconf zabbix.conf
 sudo systemctl restart apache2
 sudo systemctl restart zabbix-server
 
