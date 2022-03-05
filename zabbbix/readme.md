@@ -24,11 +24,11 @@ tar xpvf zabbix-*.tar.gz
 
 cd ./zabbix-*/database/mysql/
 
-cat data.sql | mysql -uroot -p zabbix
+cat data.sql | mysql -uroot -p zabbixdb
 
-cat images.sql | mysql -uroot -p zabbix
+cat images.sql | mysql -uroot -p zabbixdb
 
-cat schema.sql | mysql -uroot -p zabbix
+cat schema.sql | mysql -uroot -p zabbixdb
 
 
 sudo nano /etc/zabbix/zabbix_server.conf
