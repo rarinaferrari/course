@@ -5,4 +5,4 @@ sudo btrfs subvolume get-default /
 mount -o subvolid=256 /dev/nvme0n1p2 /mnt
 cd /mnt
 sudo btrfs subvolume delete /mnt/snaps/snap-24-02-2022/
-
+!
