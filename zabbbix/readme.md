@@ -10,9 +10,9 @@ mysql -u root -p
 
 mysql> CREATE DATABASE zabbixdb CHARACTER SET utf8 COLLATE utf8_bin;
 
-mysql> CREATE USER zabbixuser@localhost IDENTIFIED BY ‘this my password’;
+mysql> CREATE USER zabbix@localhost IDENTIFIED BY '1208';
 
-mysql> GRANT ALL PRIVILEGES ON *zabbixdb.* TO 'zabbixuser'@'localhost';
+mysql> GRANT ALL PRIVILEGES ON zabbixdb.* TO 'zabbixuser'@'localhost';
 
 mysql> FLUSH PRIVILEGES;
 
