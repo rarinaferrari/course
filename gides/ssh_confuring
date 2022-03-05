@@ -1,0 +1,7 @@
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+git config --global user.email '63434489+your_email@example.com'
+chown -R $USER:$USER ~/.ssh
+chmod 700 ~/.ssh
+chmod 644 ~/.ssh/*
+chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+ssh-add ~/.ssh/id_ed25519
