@@ -50,3 +50,4 @@ sudo dpkg-reconfigure locales
 ru_RU.UTF-8
 ru_RU.ISO-8859-5
 
+__
