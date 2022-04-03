@@ -1,0 +1,151 @@
+sudo apt-get install nginx mariadb-server redis-server php7.4-redis php7.4 php7.4-gmp php7.4-bcmath php7.4-fpm php7.4-common php7.4-zip php7.4-xml php7.4-intl php7.4-gd php7.4-mysql php7.4-mbstring php7.4-curl php7.4-imagick # пока последняя поддерживаемая 7.4, 8 не ставить
+
+systemctl enable mariadb
+systemctl start mariadb
+mysqladmin -u root password
+mysql -uroot -p
+***************
+CREATE DATABASE nextclouddb DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL PRIVILEGES ON nextclouddb.* TO nextclouduser@localhost IDENTIFIED BY 'password';
+***************
+
+
+снимаем комментарий
+nano /etc/php/7.4/fpm/pool.d/www.conf:
+env[PATH] = /usr/local/bin:/usr/bin:/bin
+
+Настраиваем php.ini:
+nano /etc/php/7.4/fpm/php.ini
+
+opcache.enable=1
+opcache.enable_cli=1
+opcache.interned_strings_buffer=8
+opcache.max_accelerated_files=10000
+opcache.memory_consumption=256
+opcache.save_comments=1
+opcache.revalidate_freq=1
+memory_limit = 1024M
+
+nano /var/www/nextcloud/config/config.php:
+
+ 'memcache.local' => '\\OC\\Memcache\\Redis',
+  'memcache.distributed' => '\\OC\\Memcache\\Redis',
+  'memcache.locking' => '\\OC\\Memcache\\Redis',
+  'redis' => 
+      array (
+          'host' => 'localhost',
+          'port' => 6379,
+      ),
+...
+'default_phone_region' => 'RU',
+
+
+
+systemctl enable php7.4-fpm
+systemctl restart php7.4-fpm
+
+
+nano /etc/nginx/conf.d/nextcloud.conf
+
+server {
+        listen 80;
+        server_name cloud.domain.ru;
+        return 301 https://$server_name$request_uri;
+}
+
+server {
+        listen 443 ssl;
+        server_name cloud.domain.ru;
+
+        ssl_certificate /etc/nginx/ssl/cert.pem;
+        ssl_certificate_key /etc/nginx/ssl/cert.key;
+
+        root /var/www/nextcloud;
+
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        client_max_body_size 10G;
+        fastcgi_buffers 64 4K;
+
+        rewrite ^/caldav(.*)$ /remote.php/caldav$1 redirect;
+        rewrite ^/carddav(.*)$ /remote.php/carddav$1 redirect;
+        rewrite ^/webdav(.*)$ /remote.php/webdav$1 redirect;
+
+        index index.php;
+        error_page 403 = /core/templates/403.php;
+        error_page 404 = /core/templates/404.php;
+
+        location = /robots.txt {
+            allow all;
+            log_not_found off;
+            access_log off;
+        }
+
+        location ~ ^/(data|config|\.ht|db_structure\.xml|README) {
+                deny all;
+        }
+
+        location ^~ /.well-known {
+                location = /.well-known/carddav { return 301 /remote.php/dav/; }
+                location = /.well-known/caldav  { return 301 /remote.php/dav/; }
+                location ^~ /.well-known{ return 301 /index.php/$uri; }
+                try_files $uri $uri/ =404;
+        }
+
+        location / {
+                rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+                rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json last;
+                rewrite ^(/core/doc/[^\/]+/)$ $1/index.html;
+                try_files $uri $uri/ index.php;
+        }
+
+        location ~ ^(.+?\.php)(/.*)?$ {
+                try_files $1 = 404;
+                include fastcgi_params;
+                fastcgi_param SCRIPT_FILENAME $document_root$1;
+                fastcgi_param PATH_INFO $2;
+                fastcgi_param HTTPS on;
+                fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+        }
+
+        location ~* ^.+\.(jpg|jpeg|gif|bmp|ico|png|css|js|swf)$ {
+                expires modified +30d;
+                access_log off;
+        }
+}
+
+
+
+sudo mkdir /etc/nginx/ssl
+sudo cd /etc/nginx/ssl
+sudo certbot --nginx -d cloud.domain.ru --dry-run
+sudo certbot --nginx -d cloud.domain.ru
+sudo cp ssl_certificate /etc/letsencrypt/live/cloud.domain.ru/fullchain.pem cert.pem
+sudo cp ssl_certificate_key /etc/letsencrypt/live/cloud.domain.ru/privkey.pem cert.key
+sudo chown -R www-data. ./ssl
+
+sudo systemctl stop apache2
+sudo systemctl disable apache2
+
+sudo nginx -t
+sudo systemctl enable nginx
+sudo systemctl restart nginx
+
+sudo apt-get install unzip
+
+mkdir -p /var/www/
+cd /var/www/
+
+wget https://download.nextcloud.com/server/releases/latest.zip
+unzip latest.zip
+mkdir -p /var/www/nextcloud/data
+chown -R www-data:www-data /var/www/nextcloud
+
+
+
+Создать нового пользователя можно командой:
+
+sudo -u www-data php /var/www/nextcloud/occ user:add admin
+
+* где admin — имя учетной записи.
+
+
