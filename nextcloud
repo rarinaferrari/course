@@ -1,4 +1,5 @@
-sudo apt-get install nginx mariadb-server redis-server php7.4-redis php7.4 php7.4-gmp php7.4-bcmath php7.4-fpm php7.4-common php7.4-zip php7.4-xml php7.4-intl php7.4-gd php7.4-mysql php7.4-mbstring php7.4-curl php7.4-imagick # пока последняя поддерживаемая 7.4, 8 не ставить
+sudo apt-get install nginx mariadb-server redis-server php7.4-redis php7.4 php7.4-gmp php7.4-bcmath php7.4-fpm php7.4-common php7.4-zip php7.4-xml php7.4-intl php7.4-gd php7.4-mysql php7.4-mbstring php7.4-curl php7.4-imagick 
+# пока последняя поддерживаемая 7.4, 8 не ставить
 
 systemctl enable mariadb
 systemctl start mariadb
